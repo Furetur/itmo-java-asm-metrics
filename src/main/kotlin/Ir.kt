@@ -1,7 +1,4 @@
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes
+import org.objectweb.asm.*
 import java.lang.Class
 import kotlin.math.min
 
@@ -27,11 +24,19 @@ data class IrClass(
     val name: String,
     val baseClass: String,
     val attributes: Map<String, IrAttribute>,
-    val methods: List<IrMethod>
+    val methods: List<IrMethod>,
+    val fields: List<IrField>
 ) {
     override fun toString(): String = buildString {
         appendLine("class $name : $baseClass")
         indent {
+            appendLine("fields")
+            indent {
+                for (field in fields) {
+                    appendLine(field.toString())
+                }
+            }
+
             appendLine("attributes")
             indent {
                 for (attr in attributes.values) {
@@ -74,6 +79,12 @@ data class IrAttribute(val name: String, val access: Access, val typeDescriptor:
 data class IrMethod(val name: String, val access: Access, val descriptor: String) {
     override fun toString(): String {
         return "${access.toString().lowercase()} $name: $descriptor"
+    }
+}
+
+data class IrField(val name: String, val descriptor: String) {
+    override fun toString(): String {
+        return "$name: $descriptor"
     }
 }
 
@@ -191,8 +202,26 @@ class AttributesVisitor : ClassVisitor(Opcodes.ASM9) {
     }
 }
 
+class FieldsVisitor : ClassVisitor(Opcodes.ASM9) {
+    val fields: MutableList<IrField> = mutableListOf()
+
+    override fun visitField(
+        access: Int,
+        name: String,
+        descriptor: String,
+        signature: String?,
+        value: Any?
+    ): FieldVisitor? {
+        fields.add(
+            IrField(name, descriptor)
+        )
+        return null
+    }
+}
+
 fun buildIr(classnames: List<String>): Ir {
     val classes = classnames.map { cl ->
+        debug("Reading class $cl")
         val reader = ClassReader(cl)
 
         val m = MethodsVisitor()
@@ -201,12 +230,15 @@ fun buildIr(classnames: List<String>): Ir {
         reader.accept(a, 0)
         val b = BaseClassVisitor()
         reader.accept(b, 0)
+        val f = FieldsVisitor()
+        reader.accept(f, 0)
 
         IrClass(
             name=b.className!!,
             baseClass = b.baseClass!!,
             methods = m.methods,
-            attributes = a.attributes
+            attributes = a.attributes,
+            fields = f.fields
         )
     }.associateBy { it.name }
     return Ir(classes)

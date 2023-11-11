@@ -96,10 +96,25 @@ fun aif(inh: IrInheritanceMetrics): Double {
 fun descendantsCount(ir: Ir, cl: IrClass): Int = ir.classes.values.count { parents(ir, it).contains(cl) }
 
 fun pof(ir: Ir, inh: IrInheritanceMetrics): Double {
-    val totalOverriden = inh.values.sumOf { it.meth.overriddenCount }
-    val denomimator =
+    val totalOverridden = inh.values.sumOf { it.meth.overriddenCount }
+    val denominator =
         inh.map { (clName, metrics) -> descendantsCount(ir, ir.classes[clName]!!) * metrics.meth.newCount }.sum()
-    return totalOverriden.toDouble() / denomimator
+    return totalOverridden.toDouble() / denominator
+}
+
+fun hasReferenceTo(cl: IrClass, referredClass: IrClass): Boolean = cl.fields.any { referredClass.name in it.descriptor }
+
+fun cof(ir: Ir): Double {
+    var count = 0
+    val classes = ir.classes.values.toList()
+    for (i in 0 until classes.size) {
+        for (j in 0 until classes.size) {
+            if (!hasReferenceTo(classes[i], classes[j])) continue
+            count += 1
+        }
+    }
+    val n = ir.classes.size
+    return count.toDouble() / (n * (n - 1))
 }
 
 

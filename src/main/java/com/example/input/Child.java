@@ -1,6 +1,7 @@
 package com.example.input;
 
 public class Child extends Base {
+    public Base base;
     @Override
     public void f(String name) {
         System.out.println("Child: " + name);
@@ -19,6 +20,6 @@ public class Child extends Base {
     }
 
     private void setName(String name) {
-        
+
     }
 }

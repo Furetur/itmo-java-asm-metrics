@@ -17,6 +17,30 @@ val classnames = listOf(
     "java.time.Instant"
 )
 
+// Hiding Factor
+//val classnames = listOf(
+//    "com.example.hidingfactor.Base",
+//    "com.example.hidingfactor.Child",
+//)
+
+// Inheritance Factor
+//val classnames = listOf(
+//    "com.example.inheritancefactor.Base",
+//    "com.example.inheritancefactor.Child",
+//)
+
+// Polymorphism Factor
+//val classnames = listOf(
+//    "com.example.polymorphismfactor.Base",
+//    "com.example.polymorphismfactor.Child",
+//)
+
+// Coupling Factor
+//val classnames = listOf(
+//    "com.example.hidingfactor.Base",
+//    "com.example.hidingfactor.Child",
+//)
+
 fun main(args: Array<String>) {
     val ir = buildIr(classnames)
     println(ir)
@@ -26,5 +50,6 @@ fun main(args: Array<String>) {
     println("AHF = ${ahf(ir)}")
     println("MIF = ${mif(inh)}")
     println("AIF = ${aif(inh)}")
+    println("POF = ${pof(ir, inh)}")
     println("COF = ${cof(ir)}")
 }

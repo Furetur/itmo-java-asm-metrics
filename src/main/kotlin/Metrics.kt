@@ -57,7 +57,7 @@ fun calculateMethodInheritanceMetrics(ir: Ir, cl: IrClass): InheritanceMetrics {
 }
 
 fun calculateAttributeInheritanceMetrics(ir: Ir, cl: IrClass): InheritanceMetrics {
-    val definedAttributes = cl.methods.toSet()
+    val definedAttributes = cl.attributes.values.toSet()
     val inheritedAttributes = getAllInheritedAttributes(ir, cl)
 
     return InheritanceMetrics(
